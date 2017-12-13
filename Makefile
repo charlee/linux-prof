@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS :=
-COUNT := 100000
+COUNT := 1000
 
 SRCS = $(wildcard src/*.c)
 TEST_RESULTS = $(subst .c,.csv,$(subst src,output,$(SRCS)))
@@ -9,7 +9,7 @@ TEST_RESULTS = $(subst .c,.csv,$(subst src,output,$(SRCS)))
 
 all: report.csv
 clean:
-	rm report.csv
+	rm report.csv output/*.csv build/*
 
 .PRECIOUS: output/%.csv build/%
 
