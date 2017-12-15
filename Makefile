@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS :=
+CFLAGS := -O0
 COUNT := 1000
 
 SRCS = $(wildcard src/*.c)
@@ -17,9 +17,7 @@ report.csv: $(TEST_RESULTS)
 	python make_report.py $@ $(TEST_RESULTS)
 
 output/%.csv: build/%
-	for i in `seq 1 $(COUNT)`; do \
-		$< >> $@; \
-	done
+	$< >> $@
 
 build/%: src/%.c
 	$(CC) $(CFLAGS) $< -o $@
