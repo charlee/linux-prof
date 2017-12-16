@@ -20,17 +20,22 @@ asm volatile("RDTSCP\n\t" \
 #define WARMUP1(xh, xl) RDTSC(xh, xl); RDTSCP(xh, xl)
 #define WARMUP(xh, xl) WARMUP1(xh, xl); WARMUP1(xh, xl); WARMUP1(xh, xl);
 
-#define BENCHMARK(op, result_ptr, count) \
+#define BENCHMARK(op, pre, post, result_ptr, count) \
     uint64_t __start, __end; \
     uint64_t __i; \
     unsigned __h0, __l0, __h1, __l1; \
     result_ptr = (uint64_t*)malloc(count * sizeof(uint64_t));\
+    pre; \
+    op; \
+    post; \
     WARMUP(__h0, __l0); \
     for (__i=0; __i<count; __i++) { \
+        pre; \
         RDTSC(__h0, __l0); \
         op; \
         RDTSCP(__h1, __l1); \
         CALC_TIME(__start, __h0, __l0); \
         CALC_TIME(__end, __h1, __l1); \
         result_ptr[__i] = __end - __start;\
+        post; \
     }
