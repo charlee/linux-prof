@@ -1,20 +1,13 @@
 import os
 import sys
 import csv
+import numpy as np
 
 def avg_file(filename):
-    lines = open(filename).readlines()
-    nums = [int(line) for line in lines]
-
+    data = np.loadtxt(filename)
     label = os.path.basename(filename).replace('.csv', '').replace('test_', '')
-    total = sum(nums)
-    count = len(nums)
-    if count == 0:
-        avg = 0
-    else:
-        avg = int(total / count)
 
-    return (label, total, count, avg)
+    return (label, len(data), np.mean(data), np.std(data))
 
 def avg_all(filenames, output_file):
 
