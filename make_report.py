@@ -10,24 +10,12 @@ def avg_file(filename):
 
     return (label, len(data), np.mean(data), np.std(data))
 
-def plot_file(filename):
-    data = np.loadtxt(filename)
-    label = os.path.basename(filename).replace('.csv', '').replace('test_', '')
-    plt.figure()
-    plt.plot(data)
-    plt.ylabel('Cycles')
-    plt.suptitle(label)
-    plt.savefig('report/{}.png'.format(label))
-    plt.close()
-
-
 def avg_all(filenames, output_file):
 
     with open(output_file, 'w') as f:
         csvwriter = csv.writer(f)
         for filename in filenames:
             data = avg_file(filename)
-            plot_file(filename)
             csvwriter.writerow(data)
 
 

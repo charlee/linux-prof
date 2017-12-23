@@ -15,7 +15,6 @@
 
 int main() {
 
-    uint64_t *times;
     uint64_t result;
     int fd;
 
