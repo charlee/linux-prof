@@ -8,9 +8,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
-#define WRITE_SIZE 4096
-
 #define OP {rmdir(dirname);}
 #define PRE {sprintf(dirname, "f%d.tmp", rand());mkdir(dirname, 0755);}
 #define POST
@@ -20,14 +17,11 @@ int main() {
 
     uint64_t *times;
     char dirname[256];
+    uint64_t result;
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
-
-    CLEANUP(times, MAX_LOOP);
+    printf("%ld\n", result);
 }
 
 

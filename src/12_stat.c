@@ -8,9 +8,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
-#define WRITE_SIZE 4096
-
 #define OP {stat(filename, &statbuf);}
 #define PRE {sprintf(filename, "f%d.tmp", rand());creat(filename, 0644);}
 #define POST {unlink(filename);}
@@ -19,14 +16,11 @@
 int main() {
 
     uint64_t *times;
+    uint64_t result;
     char filename[256];
     struct stat statbuf;
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
-
-    CLEANUP(times, MAX_LOOP);
+    printf("%ld\n", result);
 }

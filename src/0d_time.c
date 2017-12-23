@@ -3,9 +3,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
-#define WRITE_SIZE 4096
-
 #define OP {time(&time_data);}
 #define PRE
 #define POST
@@ -13,16 +10,12 @@
 
 int main() {
 
-    uint64_t *times;
+    uint64_t result;
     time_t time_data;
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
-
-    CLEANUP(times, MAX_LOOP);
+    printf("%ld\n", result);
 }
 
 

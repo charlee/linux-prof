@@ -6,7 +6,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
 #define WRITE_SIZE 4096
 
 #define OP {write(fd, data, WRITE_SIZE);}
@@ -17,6 +16,7 @@
 int main() {
 
     uint64_t *times;
+    uint64_t result;
     int fd;
 
     char *data;
@@ -25,13 +25,10 @@ int main() {
     data = (char*)malloc(WRITE_SIZE);
     memset(data, 1, WRITE_SIZE);
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
+    printf("%ld\n", result);
 
     free(data);
-    CLEANUP(times, MAX_LOOP);
 }
 

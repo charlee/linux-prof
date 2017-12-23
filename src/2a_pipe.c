@@ -4,8 +4,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
-
 #define OP {pipe(fd);}
 #define PRE
 #define POST
@@ -17,13 +15,10 @@ int main() {
     char filename[256];
     int fd[2];
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    uint64_t result;
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
-
-    CLEANUP(times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
+    printf("%ld\n", result);
 }
 
 
