@@ -1,32 +1,32 @@
 #include <stdio.h>
-#include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include "benchmark.h"
 
 #define MAX_LOOP 1000
-#define READ_SIZE 4096
+#define WRITE_SIZE 4096
 
-#define OP {read(fp, data, READ_SIZE);}
-#define PRE
-#define POST
+#define OP {chmod(filename, 0777);}
+#define PRE {sprintf(filename, "f%d.tmp", rand());creat(filename, 0644);}
+#define POST {unlink(filename);}
 
 
 int main() {
 
     uint64_t *times;
-    int fp;
+    int fd;
 
     char *data;
+    char filename[256];
 
-    data = (char*)malloc(READ_SIZE);
-
-    fp = open("/dev/zero", O_RDONLY);
+    data = (char*)malloc(WRITE_SIZE);
+    memset(data, 1, WRITE_SIZE);
 
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
-
-    close(fp);
 
     for (int i = 0; i < MAX_LOOP; i++) {
         printf("%ld\n", (times[i]));
@@ -35,4 +35,6 @@ int main() {
     free(data);
     CLEANUP(times, MAX_LOOP);
 }
+
+
 

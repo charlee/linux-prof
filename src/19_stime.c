@@ -1,22 +1,20 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
+#include <time.h>
 
 #include "benchmark.h"
 
-#define TMP_FILE_NAME "tmp_link_test"
 #define MAX_LOOP 1000
+#define WRITE_SIZE 4096
 
-#define OP {unlink(filename);}
-#define PRE {sprintf(filename, "f%d.tmp", rand()); close(creat(filename, 0644));}
+#define OP {stime(&time_data);}
+#define PRE {time(&time_data);}
 #define POST
+
 
 int main() {
 
     uint64_t *times;
-    char filename[256];
-    int fd;
+    time_t time_data;
 
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
 
@@ -26,5 +24,6 @@ int main() {
 
     CLEANUP(times, MAX_LOOP);
 }
+
 
 

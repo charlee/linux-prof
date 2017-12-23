@@ -18,5 +18,5 @@ int main() {
         printf("%ld\n", (times[i]));
     }
 
-    free(times);
+    CLEANUP(times, MAX_LOOP);
 }
