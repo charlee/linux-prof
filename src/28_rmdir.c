@@ -3,24 +3,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "benchmark.h"
 
 #define MAX_LOOP 1000
 #define WRITE_SIZE 4096
 
-#define OP {stat(filename, &statbuf);}
-#define PRE {sprintf(filename, "f%d.tmp", rand());creat(filename, 0644);}
-#define POST {unlink(filename);}
+#define OP {rmdir(dirname);}
+#define PRE {sprintf(dirname, "f%d.tmp", rand());mkdir(dirname, 0755);}
+#define POST
 
 
 int main() {
 
     uint64_t *times;
-    char filename[256];
-    struct stat statbuf;
+    char dirname[256];
 
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
 
@@ -30,3 +29,5 @@ int main() {
 
     CLEANUP(times, MAX_LOOP);
 }
+
+

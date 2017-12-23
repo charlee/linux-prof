@@ -11,14 +11,16 @@
 #define MAX_LOOP 1000
 #define WRITE_SIZE 4096
 
-#define OP {stat(filename, &statbuf);}
-#define PRE {sprintf(filename, "f%d.tmp", rand());creat(filename, 0644);}
-#define POST {unlink(filename);}
+#define OP {fstat(fd, &statbuf);}
+#define PRE {sprintf(filename, "f%d.tmp", rand());fd = creat(filename, 0644);}
+#define POST {close(fd); unlink(filename);}
 
 
 int main() {
 
     uint64_t *times;
+    int fd;
+
     char filename[256];
     struct stat statbuf;
 
