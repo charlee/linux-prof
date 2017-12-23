@@ -27,10 +27,11 @@ int main() {
 
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
 
-    free(data);
-
     for (int i = 0; i < MAX_LOOP; i++) {
         printf("%ld\n", (times[i]));
     }
+
+    free(data);
+    free(times);
 }
 

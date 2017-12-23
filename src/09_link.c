@@ -5,31 +5,30 @@
 
 #include "benchmark.h"
 
+#define TMP_FILE_NAME "tmp_link_test"
 #define MAX_LOOP 1000
-#define READ_SIZE 4096
 
-#define OP {read(fp, data, READ_SIZE);}
-#define PRE
-#define POST
-
+#define OP {link(TMP_FILE_NAME, filename);}
+#define PRE {sprintf(filename, "f%d.tmp", rand());}
+#define POST {unlink(filename);}
 
 int main() {
 
     uint64_t *times;
-    int fp;
+    char filename[256];
+    int fd;
 
-    char *data;
-
-    data = (char*)malloc(READ_SIZE);
-
-    fp = open("/dev/zero", O_RDONLY);
+    fd = creat(TMP_FILE_NAME, 0644);
+    close(fd);
 
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
 
-    close(fp);
+    unlink(TMP_FILE_NAME);
 
     for (int i = 0; i < MAX_LOOP; i++) {
         printf("%ld\n", (times[i]));
     }
+
+    free(times);
 }
 

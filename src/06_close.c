@@ -7,9 +7,9 @@
 
 #define MAX_LOOP 1000
 
-#define OP {fp = open(filename, O_CREAT);}
-#define PRE {sprintf(filename, "f%d.tmp", rand());}
-#define POST {close(fp); unlink(filename);}
+#define OP {close(fp);}
+#define PRE {sprintf(filename, "f%d.tmp", rand()); fp = open(filename, O_CREAT);}
+#define POST {unlink(filename);}
 
 int main() {
 
@@ -22,4 +22,6 @@ int main() {
     for (int i = 0; i < MAX_LOOP; i++) {
         printf("%ld\n", (times[i]));
     }
+
+    free(times);
 }

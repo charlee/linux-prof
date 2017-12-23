@@ -1,25 +1,22 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
 
 #include "benchmark.h"
 
 #define MAX_LOOP 1000
 
-#define OP {close(fp);}
-#define PRE {sprintf(filename, "f%d.tmp", rand()); fp = open(filename, O_CREAT);}
-#define POST {unlink(filename);}
+#define OP {asm volatile("mov $20, %eax\n\t" "int $0x80\n\t");}
+#define PRE
+#define POST
 
 int main() {
 
     uint64_t *times;
-    char filename[256];
-    int fp;
-
     BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
 
     for (int i = 0; i < MAX_LOOP; i++) {
         printf("%ld\n", (times[i]));
     }
+
+    free(times);
 }
