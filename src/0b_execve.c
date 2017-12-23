@@ -10,7 +10,6 @@
 #include "benchmark.h"
 
 #define TMP_FILE_NAME "tmp_link_test"
-#define MAX_LOOP 1000
 
 #define SCRIPT "#!/bin/sh\n"
 
@@ -20,7 +19,7 @@
 
 int main() {
 
-    uint64_t *times;
+    uint64_t result;
     char filename[256];
     int fd;
 
@@ -29,13 +28,9 @@ int main() {
 
     char data[11] = SCRIPT;
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
-
-    CLEANUP(times, MAX_LOOP);
+    printf("%ld\n", result);
 }
 
 

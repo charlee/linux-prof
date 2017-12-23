@@ -5,7 +5,6 @@
 
 #include "benchmark.h"
 
-#define MAX_LOOP 1000
 #define READ_SIZE 4096
 
 #define OP {read(fp, data, READ_SIZE);}
@@ -16,6 +15,7 @@
 int main() {
 
     uint64_t *times;
+    uint64_t result;
     int fp;
 
     char *data;
@@ -24,15 +24,12 @@ int main() {
 
     fp = open("/dev/zero", O_RDONLY);
 
-    BENCHMARK(OP, PRE, POST, times, MAX_LOOP);
+    BENCHMARK(OP, PRE, POST, &result);
 
     close(fp);
 
-    for (int i = 0; i < MAX_LOOP; i++) {
-        printf("%ld\n", (times[i]));
-    }
+    printf("%ld\n", result);
 
     free(data);
-    CLEANUP(times, MAX_LOOP);
 }
 
