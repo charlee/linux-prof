@@ -57,9 +57,9 @@ int main() {
         } else {
             result = *child_time;
         }
+        printf("%ld\n", result);
     }
 
-    printf("%ld\n", result);
 }
 
 
