@@ -4,6 +4,7 @@
 build/
 output/
 report/
+plot/
 *.aux
 *.fdb_latexmk
 *.fls
@@ -12,4 +13,4 @@ report/
 *.synctex.gz
 *.tmp
 *.tar.gz
-.vscode/
+.vscode
