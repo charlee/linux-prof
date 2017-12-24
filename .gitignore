@@ -12,3 +12,4 @@ report/
 *.synctex.gz
 *.tmp
 *.tar.gz
+.vscode/

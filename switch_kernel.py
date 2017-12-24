@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import re
 import os
 
 BASEDIR = os.path.dirname(__file__)
@@ -20,6 +21,7 @@ lines = open(kernel_list).readlines()
 kernels = []
 for l in lines:
     l = l.strip()
+    l = re.sub(r'#.*', '', l)
     if not l:
         continue
     grub, version = l.split(',')

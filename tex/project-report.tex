@@ -15,34 +15,110 @@
 
 \section{Introduction}
 
+
 \section{Experiments}
 
 Test 
 
 \subsection{RDTSC vs. clock\_gettime}
 
-A common way of measuring execution time is using C library function \lstinline{clock_gettime(clockid_t clk_id, struct timespec *res)}.
+A common way of measuring execution time is using C library function \lstinline{clock_gettime}.
 Setting the argument \lstinline{clk_id} to \lstinline{CLOCK_REALTIME} will return the real clock time in nanoseconds precision,
 which could be used to measure the execution of system calls.
 
-Intel ia64/x86 architecture provided RDTSC instruction for directly counting CPU cycles. 
+Intel ia64/x86 architecture provided RDTSC (Read Time-Stamp Counter) instruction for directly counting CPU cycles. 
+RDTSC will read the cycle counter into eax and edx registers, which is a monotonic increasing number.
+This can be used for performance test if compatibility is not a consideration.
 
+The basic benchmark code with RDTSC is listed below.
+
+\begin{verbatim}
+        asm volatile("RDTSC\n\t"
+                    "mov %%edx, %0\n\t"
+                    "mov %%eax, %1\n\t" : "=r" (x0h), "=r" (x0l)::);
+        test_function();
+        asm volatile("RDTSC\n\t"
+                    "mov %%edx, %0\n\t"
+                    "mov %%eax, %1\n\t" : "=r" (x1h), "=r" (x1l)::);
+        start = (((uint64_t)x0h << 32) | x0l);
+        end = (((uint64_t)x1h << 32) | x1l);
+        cycles = end - start;
+\end{verbatim}
+
+\subsubsection{Out-of-order execution}
+
+Modern CPU is equipped with out-of-order execution feature.
+This is used to optimize the penalties due to different instruction latencies,
+however this will make our benchmark difficult, because there is no guarantee that
+RDTSC will be executed exactly before and after the test code.
+
+The solution includes two extra instruction. First, the CPUID instruction will be called before RDTSC
+instruction. CPUID can be executed at any privilege level and will force the CPU to serialize any instructions
+before CPUID. In this way the CPUID and the following RDTSC can be guaranteed to be run before the test code.
+
+However for the RDTSC call after the test function,
+it is still possible for the instructions after RDTSC to be executed before RDTSC but after CPUID.
+To solve this, RDTSCP instruction can be used insted of CPUID and RDTSC.
+RDTSCP will read both cycle counter and CPU id, which is essentially an "atomic" operation
+to ensure serialized instructions.
+
+\subsubsection{Exclusive CPU ownership}
+
+It is common to disble preemption(\lstinline{preempt_disable()}) and hard interrupts(\lstinline{raw_local_irq_save()})
+to guarantee the exclusive CPU ownership when measuring CPU cycles. However in our case, these two functions
+are only available in kernel mode, which is not reasonable when behchmarking system calls.
+Therefore we will not use these functions.
 
 \subsection{Environment}
 
-The computer we used to run the benchmark test has an Intel ... CPU with 16GB memory.
+The computer we used to run the benchmark test has an Intel ... CPU with 16GB memory. The Linux OS is Ubuntu 16.04.
 
-Start Ubuntu in text mode:
+\subsubsection{Linux Setup}
 
-sudo systemctl enable multi-user.target
-sudo systemctl set-default multi-user.target
+The benchmarking is required to be repeated on multiple Linux kernels.
+To minimize the overhead of compiling Linux kernels,
+we decided to install pre-built kernel from Ubuntu kernel PPA\cite{kernelppa}. 
 
-Auto login as root
-
-sudo systemctl edit getty@tty2
-ExecStart=-/sbin/agetty -a <USERNAME> --noclear %I $TERM
+In order to automate the benchmarking, a python script is used to automatically switch the default kernel by changing the grub config.
+The linux OS as been changed so that root user will automatically login and execute the benchmark scripts after boot.
 
 
+\section{Benchmark}
+
+
+
+
+\section{Appendix}
+
+\subsection{Linux settings}
+
+To boot Ubuntu into text mode, use:
+
+\begin{verbatim}
+    sudo systemctl enable multi-user.target
+    sudo systemctl set-default multi-user.target
+\end{verbatim}
+
+To run grub in text mode, change /etc/default/grub as:
+
+\begin{verbatim}
+    GRUB_CMDLINE_LINUX_DEFAULT="text nomodeset"
+\end{verbatim}
+
+To login as root user, edit /lib/systemd/system/getty@:
+
+\begin{verbatim}
+    ExecStart=-/sbin/agetty -a <USERNAME> --noclear %I $TERM
+\end{verbatim}
+
+
+\begin{thebibliography}{9}
+    \raggedright
+    \bibitem{kernelppa}
+    \emph{Ubuntu Kernel PPA},
+    http://kernel.ubuntu.com/~kernel-ppa/mainline/
+\end{thebibliography}
 
 
 \end{document}
+
