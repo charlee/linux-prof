@@ -1,10 +1,36 @@
 %project-final-report.tex
 \documentclass{article}
+\usepackage[letterpaper, margin=1.2in]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{xparse}
+
+\lstset{language=C,keywordstyle={\bfseries \color{blue}}}
+
 \begin{document}
 
-\title{A Performance Test of Linux System Calls}
+\title{A Benchmark of Linux System Calls}
 \author{Jian Li \and Ding Yuan}
 \maketitle
+
+\section{Introduction}
+
+\section{Experiments}
+
+Test 
+
+\subsection{RDTSC vs. clock\_gettime}
+
+A common way of measuring execution time is using C library function \lstinline{clock_gettime(clockid_t clk_id, struct timespec *res)}.
+Setting the argument \lstinline{clk_id} to \lstinline{CLOCK_REALTIME} will return the real clock time in nanoseconds precision,
+which could be used to measure the execution of system calls.
+
+Intel ia64/x86 architecture provided RDTSC instruction for directly counting CPU cycles. 
+
+
+\subsection{Environment}
+
+The computer we used to run the benchmark test has an Intel ... CPU with 16GB memory.
 
 
 \end{document}
