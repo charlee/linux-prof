@@ -6,13 +6,19 @@ SRCS = $(wildcard src/*.c)
 TEST_RESULTS = $(subst .c,.csv,$(subst src,output,$(SRCS)))
 REPORTS = $(subst .c,.png,$(subst src,report,$(SRCS)))
 
-.PHONY: all clean
+.PHONY: all tar clean
 
 all: report.csv
+
+tar: output.tar.gz
+
 clean:
 	rm report.csv output/*.csv build/*
 
 .PRECIOUS: output/%.csv build/%
+
+output.tar.gz: $(TEST_RESULTS)
+	tar czf output.tar.gz output/
 
 report.csv: $(TEST_RESULTS) $(REPORTS)
 	python make_report.py $@ $(TEST_RESULTS)
