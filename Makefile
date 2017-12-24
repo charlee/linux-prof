@@ -13,7 +13,7 @@ all: report.csv
 tar: output.tar.gz
 
 clean:
-	rm report.csv output/*.csv build/*
+	rm -f report.csv output/*.csv build/*
 
 .PRECIOUS: output/%.csv build/%
 
