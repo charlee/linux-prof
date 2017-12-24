@@ -24,7 +24,7 @@ for l in lines:
     l = re.sub(r'#.*', '', l)
     if not l:
         continue
-    grub, version = l.split(',')
+    grub, version = l.split(':')
     grub = grub.strip()
     version = version.strip()
     kernels.append([grub, version])
