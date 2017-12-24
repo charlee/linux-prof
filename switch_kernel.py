@@ -30,6 +30,7 @@ for l in lines:
 
 if len(kernels) <= grub_pos:
     print("Done.")
+    exit(1)
 else:
     kernel = kernels[grub_pos]
     open(kernel_version_file, 'w').write(kernel[1])
@@ -37,3 +38,4 @@ else:
     print('grub-set-default "%s"' % kernel[0])
     os.system('grub-set-default "%s"' % kernel[0])
     os.system('shutdown -r now')
+    exit(0)
