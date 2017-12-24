@@ -11,3 +11,4 @@ report/
 *.pdf
 *.synctex.gz
 *.tmp
+*.tar.gz

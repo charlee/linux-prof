@@ -32,5 +32,17 @@ Intel ia64/x86 architecture provided RDTSC instruction for directly counting CPU
 
 The computer we used to run the benchmark test has an Intel ... CPU with 16GB memory.
 
+Start Ubuntu in text mode:
+
+sudo systemctl enable multi-user.target
+sudo systemctl set-default multi-user.target
+
+Auto login as root
+
+sudo systemctl edit getty@tty2
+ExecStart=-/sbin/agetty -a <USERNAME> --noclear %I $TERM
+
+
+
 
 \end{document}
