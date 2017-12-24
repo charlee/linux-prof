@@ -10,3 +10,4 @@ report/
 *.log
 *.pdf
 *.synctex.gz
+*.tmp
