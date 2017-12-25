@@ -24,7 +24,7 @@ for l in lines:
     l = re.sub(r'#.*', '', l)
     if not l:
         continue
-    grub, version = l.split(',')
+    grub, version = l.split(':')
     grub = grub.strip()
     version = version.strip()
     kernels.append([grub, version])
@@ -38,6 +38,7 @@ else:
     open(kernel_version_file, 'w').write(kernel[1])
     open(grub_pos_file, 'w').write('%s' % (grub_pos+1))
     print('grub-set-default "%s"' % kernel[0])
+    print('version: %s' % kernel[1])
     os.system('grub-set-default "%s"' % kernel[0])
     os.system('shutdown -r now')
     exit(0)

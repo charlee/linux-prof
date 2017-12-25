@@ -1,4 +1,5 @@
 #!/bin/bash
+setterm -blank 0
 read -n 1 -t 5 -p "Press any key in 5 seconds to cancel autorun..."
 
 if [ "$?" != "0" ]; then
