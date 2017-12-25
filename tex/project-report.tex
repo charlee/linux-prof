@@ -1,6 +1,9 @@
 %project-final-report.tex
 \documentclass{article}
 \usepackage[letterpaper, margin=1.2in]{geometry}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{listings}
@@ -123,12 +126,110 @@ In order to automate the benchmarking, a python script is used to automatically 
 The linux OS as been changed so that root user will automatically login and execute the benchmark scripts after boot.
 
 
-\section{Benchmark Result}
+\section{Benchmark}
+
+The basic benchmark is to fetch the cycle counter before and after the target system call so that the consumed cycles can be calculated.
+However some system calls require special operations.
+
+\subsection{fork}
+
+\lstinline{fork} will create an identical process of the caller so that regular operation cannot be used.
+In order to measure this, both parent and child process will fetch the cycle counter after \lstinline{fork()} is called.
+Shared memory is used to pass the child counter back to the parent counter.
+A pipe is created between the parent and child processes and the parent process writes into the pipe to force
+the OS scheduler to switch to the child process. Then the parent process will wait for the child process.
+After that, the parent process will compare the cycle counters from both parent and child processes
+and use the greater one as the final result.
+
+\subsection{unlink}
+
+In Linux, \lstinline{unlink()} system call will decrease the (hard) link counter and remove the file if the last link is removed.
+Therefore it is necessary to measure \lstinline{unlink()} in two cases: removing the last link, and remove the non-last link.
+Our experiment results show that different cycles are required in these two cases, and the difference is the cycles required for removing the file itself.
+
+
+\subsection{Benchmark Results}
 
 Due to limited space we only show part of the benchmark result here. Full result can be found at the project website.
+The average cycles cost by system calls of major Linux kernel version are listed in Table \ref{tab:mean}.
 
-First, the 
 
+\begin{table}
+    \centering
+    \begin{tabular}{clrrrrr}
+        \toprule
+        eax & syscall & 3.2.96 & 3.10.108 & 3.19.8 & 4.4.0 & 4.14.0 \\
+        \midrule
+        02 & fork & 332512 & 88102 & 86261 & 93924 & 184170 \\
+        03 & read & 10189 & 3603 & 2694 & 2796 & 4811 \\
+        04 & write & 62045 & 16674 & 17113 & 16600 & 32780 \\
+        05 & open & 100012 & 27445 & 30248 & 27760 & 49898 \\
+        06 & close & 7924 & 4107 & 2668 & 2373 & 3916 \\
+        09 & link & 43976 & 13146 & 9603 & 8812 & 16122 \\
+        0a & unlink & 34974 & 10104 & 8838 & 7958 & 14561 \\
+        0b & execve & 33513 & 9751 & 11403 & 11223 & 18058 \\
+        0d & time & 6373 & 1532 & 1484 & 1462 & 8778 \\
+        0e & mknod & 92496 & 25768 & 28424 & 25766 & 45868 \\
+        0f & chmod & 37023 & 10900 & 7334 & 7505 & 13152 \\
+        12 & stat & 19895 & 6797 & 2953 & 3068 & 5668 \\
+        14 & getpid & 4274 & 1889 & 995 & 1025 & 1841 \\
+        19 & stime & 17381 & 79772 & 56543 & 87464 & 95605 \\
+        1b & alarm & 21137 & 6488 & 7607 & 7782 & 12416 \\
+        1c & fstat & 7274 & 5386 & 1775 & 1789 & 2531 \\
+        1e & utime & 34401 & 10126 & 6265 & 6370 & 11371 \\
+        26 & rename & 78948 & 20912 & 19564 & 17162 & 30875 \\
+        27 & mkdir & 183147 & 45946 & 50873 & 45946 & 85106 \\
+        28 & rmdir & 147876 & 39826 & 38157 & 31147 & 59144 \\
+        29 & dup & 6033 & 2621 & 1542 & 1483 & 2649 \\
+        2a & pipe & 7020 & 9005 & 10604 & 10995 & 10873 \\
+        2b & times & 17309 & 5744 & 7581 & 7341 & 11993 \\
+        2c & acct & 30622 & 8507 & 9630 & 10846 & 17090 \\
+        3c & umask & 12934 & 4827 & 5967 & 6193 & 9510 \\
+        3f & dup2 & 5923 & 2662 & 1505 & 1455 & 2624 \\
+        40 & getppid & 13194 & 4961 & 6007 & 6111 & 9435 \\
+        41 & getpgrp & 13115 & 5082 & 6088 & 6251 & 9509 \\
+        \bottomrule
+    \end{tabular}
+    \caption{\label{tab:mean} Average Cycles for System Calls in Major Kernel Versions}
+\end{table}
+
+
+For each system calls, the average cycles required keep almost unchanged for most of the system calls we measured.
+However the cycles required dropped significantly when kernel version is upgraded from 3.9 to 3.10.
+For example, \lstinline{unlink} requires approximately 35000 cycles in kernel version 3.9, but
+only requires approximately 10000 cycles in 3.10. We assume that there was a major performance improvement in kernel 3.10,
+however the detail will require further investigation.
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/0a_unlink.png}
+        \caption{unlink}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/0b_execve.png}
+        \caption{execve}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/02_fork.png}
+        \caption{fork}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/14_getpid.png}
+        \caption{getpid}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/26_rename.png}
+        \caption{rename}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../report/05_open.png}
+        \caption{open}
+    \end{subfigure}
+    \caption{Cycles for some System Calls}
+    \label{fig:cycles}
+\end{figure}
 
 
 \section{Appendix}
