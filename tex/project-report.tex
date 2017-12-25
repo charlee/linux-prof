@@ -2,6 +2,7 @@
 \documentclass{article}
 \usepackage[letterpaper, margin=1.2in]{geometry}
 \usepackage{xcolor}
+\usepackage{booktabs}
 \usepackage{listings}
 \usepackage{xparse}
 
@@ -15,18 +16,51 @@
 
 \section{Introduction}
 
+The purpsoe of this paper is to evaluate the performance of Linux system calls of different kernel versions.
+
 
 \section{Experiments}
 
-Test 
+We chose Linux kernel version 4.x (4.0 - 4.14) and 3.x (3.0 - 3.19) for our performance tests. The system calls tested are listed in Tablea \ref{tab:syscalls}.
 
-\subsection{RDTSC vs. clock\_gettime}
+\begin{table}
+    \centering
+    \begin{tabular}{clcclcclc}
+        \toprule
+        syscall \# & name & eax & syscall \# & name & eax & syscall \# & name & eax \\
+        \midrule
+        2 & fork & 0x02     &  15 & chhmod & 0x0f   &  41 & dup & 0x29 \\
+        3 & read & 0x03     &  18 & stat & 0x12     &  42 & pipe & 0x2a \\
+        4 & write & 0x04    &  20 & getpid & 0x14   &  43 & times & 0x2b \\
+        5 & open & 0x05     &  25 & stime & 0x19    &  51 & acct & 0x33 \\
+        6 & close & 0x06    &  27 & alarm & 0x1b    &  60 & umask & 0x3c \\
+        9 & link & 0x09     &  28 & fstat & 0x1c    &  63 & dup2 & 0x3f \\
+        10 & unlink & 0x0a  &  30 & utime & 0x1e    &  64 & getppid & 0x40 \\
+        11 & execve & 0x0b  &  38 & rename & 0x26   &  65 & getpgrp & 0x41 \\
+        13 & time & 0x0d    &  39 & mkdir & 0x27    & \\
+        14 & mknod & 0x0e   &  40 & rmdir & 0x28    & \\
+        \bottomrule
+    \end{tabular}
+    \caption{\label{tab:syscalls} System Calls for Performance Test}
+\end{table}
+
+
+\subsection{clock\_gettime vs. RDTSC}
+
+\subsubsection{clock\_gettime}
 
 A common way of measuring execution time is using C library function \lstinline{clock_gettime}.
 Setting the argument \lstinline{clk_id} to \lstinline{CLOCK_REALTIME} will return the real clock time in nanoseconds precision,
 which could be used to measure the execution of system calls.
 
-Intel ia64/x86 architecture provided RDTSC (Read Time-Stamp Counter) instruction for directly counting CPU cycles. 
+The problem in using \lstinline{clock_gettime} is that \lstinline{clock_gettime} itself is a system call
+and requires context switch, which could add significant overhead to the test result.
+Although Linux kernel uses vsyscall and VDSOs (Virtual Dynamically linked Shared Objects) to minimize
+the overhead by avoiding context switch, the latency is still too high when considering our purpose.
+
+\subsubsection{RDTSC}
+
+Intel ia64/x86 architecture provided RDTSC (Read Time-Stamp Counter) instruction\cite{rdtsc} for directly counting CPU cycles. 
 RDTSC will read the cycle counter into eax and edx registers, which is a monotonic increasing number.
 This can be used for performance test if compatibility is not a consideration.
 
@@ -44,6 +78,10 @@ The basic benchmark code with RDTSC is listed below.
         end = (((uint64_t)x1h << 32) | x1l);
         cycles = end - start;
 \end{verbatim}
+
+Since RDTSC can be called from user space directly, it could run much faster than \lstinline{clock_gettime}.
+The problem in RDTSC is its hardware dependency, i.e. it is only available on Intel architecture.
+In our experiments this is not a problem since we do not consider compatibility.
 
 \subsubsection{Out-of-order execution}
 
@@ -71,7 +109,7 @@ Therefore we will not use these functions.
 
 \subsection{Environment}
 
-The computer we used to run the benchmark test has an Intel ... CPU with 16GB memory. The Linux OS is Ubuntu 16.04.
+The computer we used to run the benchmark test has an Intel Core i3-4300 CPU with 16GB memory. The CPU frequency is 3491.851MHz. The Linux OS is Ubuntu 16.04.
 
 \subsubsection{Linux Setup}
 
@@ -79,12 +117,17 @@ The benchmarking is required to be repeated on multiple Linux kernels.
 To minimize the overhead of compiling Linux kernels,
 we decided to install pre-built kernel from Ubuntu kernel PPA\cite{kernelppa}. 
 
+The kernel versions varies from 3.2 to 4.14. We were unable to test 3.1 and older kernels since they could not boot under Ubuntu 16.04.
+
 In order to automate the benchmarking, a python script is used to automatically switch the default kernel by changing the grub config.
 The linux OS as been changed so that root user will automatically login and execute the benchmark scripts after boot.
 
 
-\section{Benchmark}
+\section{Benchmark Result}
 
+Due to limited space we only show part of the benchmark result here. Full result can be found at the project website.
+
+First, the 
 
 
 
@@ -117,6 +160,11 @@ To login as root user, edit /lib/systemd/system/getty@:
     \bibitem{kernelppa}
     \emph{Ubuntu Kernel PPA},
     http://kernel.ubuntu.com/~kernel-ppa/mainline/
+
+    \bibitem{rdtsc}
+    \emph{How to Benchmark Code Executions Times on Intel IA-32 and IA-64 Instruction Set Architectures},
+    Intel Corporation,
+    https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf
 \end{thebibliography}
 
 

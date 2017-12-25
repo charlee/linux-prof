@@ -113,7 +113,7 @@ def process_all(data_fd):
     # Convert kernel versions to number for sorting
     def numeric_version(version_str):
         parts = version_str.split('.')
-        return int(parts[0]) * 10000 + int(parts[1]) * 100 + int(parts[2])
+        return int(parts[0]) * 1000000 + int(parts[1]) * 1000 + int(parts[2])
 
     version_numbers = [numeric_version(v) for v in kernel_versions]
     version_idx = np.argsort(version_numbers)
@@ -135,7 +135,7 @@ def plot(filename, means, stds, versions, label):
     ax.set_ylabel('Cycles')
     ax.set_xticks(idx)
     lbls = ax.set_xticklabels(versions)
-    plt.setp(lbls, rotation=30)
+    plt.setp(lbls, rotation=90)
     plt.savefig(filename)
     plt.close()
 
