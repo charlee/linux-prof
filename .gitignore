@@ -1,9 +1,7 @@
 *.pyc
 .env/
-*.csv
 build/
 output/
-report/
 plot/
 *.aux
 *.fdb_latexmk
